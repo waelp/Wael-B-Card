@@ -1,0 +1,353 @@
+import { useState, useEffect, createContext, useContext, ReactNode } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const LANGUAGE_KEY = "@app_language";
+
+export type Language = "en" | "ar";
+
+interface Translations {
+  [key: string]: {
+    en: string;
+    ar: string;
+  };
+}
+
+const translations: Translations = {
+  // Home Screen
+  "home.title": {
+    en: "Business Card Vault",
+    ar: "خزينة بطاقات العمل",
+  },
+  "home.cards_count": {
+    en: "cards saved",
+    ar: "بطاقة محفوظة",
+  },
+  "home.card_count": {
+    en: "card",
+    ar: "بطاقة",
+  },
+  "home.search_placeholder": {
+    en: "Search cards...",
+    ar: "ابحث عن البطاقات...",
+  },
+  "home.no_cards": {
+    en: "No cards yet",
+    ar: "لا توجد بطاقات بعد",
+  },
+  "home.no_cards_desc": {
+    en: "Tap the + button to scan your first business card",
+    ar: "اضغط على زر + لمسح أول بطاقة عمل",
+  },
+  "home.no_results": {
+    en: "No cards found",
+    ar: "لم يتم العثور على بطاقات",
+  },
+  "home.no_results_desc": {
+    en: "Try a different search term",
+    ar: "جرب مصطلح بحث مختلف",
+  },
+
+  // Scan Screen
+  "scan.title": {
+    en: "Scan Business Card",
+    ar: "مسح بطاقة العمل",
+  },
+  "scan.capture_title": {
+    en: "Capture Business Card",
+    ar: "التقاط بطاقة العمل",
+  },
+  "scan.capture_desc": {
+    en: "Take a photo or select from gallery",
+    ar: "التقط صورة أو اختر من المعرض",
+  },
+  "scan.take_photo": {
+    en: "Take Photo",
+    ar: "التقاط صورة",
+  },
+  "scan.choose_gallery": {
+    en: "Choose from Gallery",
+    ar: "اختر من المعرض",
+  },
+  "scan.change_image": {
+    en: "Change Image",
+    ar: "تغيير الصورة",
+  },
+  "scan.extracting": {
+    en: "Extracting data from image...",
+    ar: "جارٍ استخراج البيانات من الصورة...",
+  },
+  "scan.card_info": {
+    en: "Card Information",
+    ar: "معلومات البطاقة",
+  },
+  "scan.company_name": {
+    en: "Company Name",
+    ar: "اسم الشركة",
+  },
+  "scan.full_name": {
+    en: "Full Name",
+    ar: "الاسم الكامل",
+  },
+  "scan.first_name": {
+    en: "First Name",
+    ar: "الاسم الأول",
+  },
+  "scan.last_name": {
+    en: "Last Name",
+    ar: "اسم العائلة",
+  },
+  "scan.job_title": {
+    en: "Job Title",
+    ar: "المسمى الوظيفي",
+  },
+  "scan.department": {
+    en: "Department",
+    ar: "القسم",
+  },
+  "scan.mobile_number": {
+    en: "Mobile Number",
+    ar: "رقم الموبايل",
+  },
+  "scan.phone_number": {
+    en: "Phone Number",
+    ar: "رقم الهاتف",
+  },
+  "scan.email": {
+    en: "Email Address",
+    ar: "البريد الإلكتروني",
+  },
+  "scan.save": {
+    en: "Save Business Card",
+    ar: "حفظ بطاقة العمل",
+  },
+  "scan.placeholder.company": {
+    en: "Enter company name",
+    ar: "أدخل اسم الشركة",
+  },
+  "scan.placeholder.fullname": {
+    en: "Enter full name",
+    ar: "أدخل الاسم الكامل",
+  },
+  "scan.placeholder.firstname": {
+    en: "First name",
+    ar: "الاسم الأول",
+  },
+  "scan.placeholder.lastname": {
+    en: "Last name",
+    ar: "اسم العائلة",
+  },
+  "scan.placeholder.jobtitle": {
+    en: "Enter job title",
+    ar: "أدخل المسمى الوظيفي",
+  },
+  "scan.placeholder.department": {
+    en: "Enter department",
+    ar: "أدخل القسم",
+  },
+  "scan.placeholder.mobile": {
+    en: "Enter mobile number",
+    ar: "أدخل رقم الموبايل",
+  },
+  "scan.placeholder.phone": {
+    en: "Enter phone number",
+    ar: "أدخل رقم الهاتف",
+  },
+  "scan.placeholder.email": {
+    en: "Enter email address",
+    ar: "أدخل البريد الإلكتروني",
+  },
+
+  // Card Detail Screen
+  "detail.company": {
+    en: "Company",
+    ar: "الشركة",
+  },
+  "detail.date_added": {
+    en: "Date Added",
+    ar: "تاريخ الإضافة",
+  },
+  "detail.call": {
+    en: "Call",
+    ar: "اتصال",
+  },
+  "detail.email": {
+    en: "Email",
+    ar: "بريد إلكتروني",
+  },
+
+  // Settings Screen
+  "settings.title": {
+    en: "Settings",
+    ar: "الإعدادات",
+  },
+  "settings.subtitle": {
+    en: "Manage your app preferences",
+    ar: "إدارة تفضيلات التطبيق",
+  },
+  "settings.general": {
+    en: "GENERAL",
+    ar: "عام",
+  },
+  "settings.data": {
+    en: "DATA",
+    ar: "البيانات",
+  },
+  "settings.about": {
+    en: "ABOUT",
+    ar: "حول",
+  },
+  "settings.language": {
+    en: "Language",
+    ar: "اللغة",
+  },
+  "settings.language_subtitle": {
+    en: "English / العربية",
+    ar: "English / العربية",
+  },
+  "settings.clear_data": {
+    en: "Clear All Data",
+    ar: "مسح جميع البيانات",
+  },
+  "settings.clear_data_subtitle": {
+    en: "Delete all saved business cards",
+    ar: "حذف جميع بطاقات العمل المحفوظة",
+  },
+  "settings.version": {
+    en: "Version",
+    ar: "الإصدار",
+  },
+
+  // Alerts
+  "alert.permission_required": {
+    en: "Permission Required",
+    ar: "إذن مطلوب",
+  },
+  "alert.camera_permission": {
+    en: "Camera permission is required to scan business cards.",
+    ar: "إذن الكاميرا مطلوب لمسح بطاقات العمل.",
+  },
+  "alert.error": {
+    en: "Error",
+    ar: "خطأ",
+  },
+  "alert.success": {
+    en: "Success",
+    ar: "نجح",
+  },
+  "alert.missing_info": {
+    en: "Missing Information",
+    ar: "معلومات ناقصة",
+  },
+  "alert.missing_info_desc": {
+    en: "Please fill in at least Company Name, Full Name, and Mobile Number.",
+    ar: "يرجى ملء اسم الشركة والاسم الكامل ورقم الموبايل على الأقل.",
+  },
+  "alert.card_saved": {
+    en: "Business card saved successfully!",
+    ar: "تم حفظ بطاقة العمل بنجاح!",
+  },
+  "alert.duplicate": {
+    en: "Duplicate Contact",
+    ar: "جهة اتصال مكررة",
+  },
+  "alert.duplicate_desc": {
+    en: "A contact with this mobile number already exists.",
+    ar: "جهة اتصال بهذا الرقم موجودة بالفعل.",
+  },
+  "alert.delete_card": {
+    en: "Delete Card",
+    ar: "حذف البطاقة",
+  },
+  "alert.delete_card_confirm": {
+    en: "Are you sure you want to delete this business card?",
+    ar: "هل أنت متأكد من حذف هذه البطاقة؟",
+  },
+  "alert.clear_all": {
+    en: "Clear All Data",
+    ar: "مسح جميع البيانات",
+  },
+  "alert.clear_all_confirm": {
+    en: "Are you sure you want to delete all business cards? This action cannot be undone.",
+    ar: "هل أنت متأكد من حذف جميع بطاقات العمل؟ لا يمكن التراجع عن هذا الإجراء.",
+  },
+  "alert.data_cleared": {
+    en: "All data has been cleared.",
+    ar: "تم مسح جميع البيانات.",
+  },
+  "alert.card_not_found": {
+    en: "Card not found",
+    ar: "البطاقة غير موجودة",
+  },
+
+  // Buttons
+  "button.ok": {
+    en: "OK",
+    ar: "حسناً",
+  },
+  "button.cancel": {
+    en: "Cancel",
+    ar: "إلغاء",
+  },
+  "button.delete": {
+    en: "Delete",
+    ar: "حذف",
+  },
+  "button.clear_all": {
+    en: "Clear All",
+    ar: "مسح الكل",
+  },
+};
+
+interface I18nContextType {
+  language: Language;
+  setLanguage: (lang: Language) => Promise<void>;
+  t: (key: string) => string;
+}
+
+const I18nContext = createContext<I18nContextType | undefined>(undefined);
+
+export function I18nProvider({ children }: { children: ReactNode }) {
+  const [language, setLanguageState] = useState<Language>("en");
+
+  useEffect(() => {
+    loadLanguage();
+  }, []);
+
+  const loadLanguage = async () => {
+    try {
+      const savedLanguage = await AsyncStorage.getItem(LANGUAGE_KEY);
+      if (savedLanguage === "ar" || savedLanguage === "en") {
+        setLanguageState(savedLanguage);
+      }
+    } catch (error) {
+      console.error("Error loading language:", error);
+    }
+  };
+
+  const setLanguage = async (lang: Language) => {
+    try {
+      await AsyncStorage.setItem(LANGUAGE_KEY, lang);
+      setLanguageState(lang);
+    } catch (error) {
+      console.error("Error saving language:", error);
+    }
+  };
+
+  const t = (key: string): string => {
+    return translations[key]?.[language] || key;
+  };
+
+  return (
+    <I18nContext.Provider value={{ language, setLanguage, t }}>
+      {children}
+    </I18nContext.Provider>
+  );
+}
+
+export function useI18n() {
+  const context = useContext(I18nContext);
+  if (!context) {
+    throw new Error("useI18n must be used within I18nProvider");
+  }
+  return context;
+}
