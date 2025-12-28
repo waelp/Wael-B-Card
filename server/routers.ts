@@ -1,7 +1,9 @@
+import { z } from "zod";
 import { COOKIE_NAME } from "../shared/const.js";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
+import { extractBusinessCardData } from "./ocr-service";
 
 export const appRouter = router({
   // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -17,12 +19,31 @@ export const appRouter = router({
     }),
   }),
 
-  // TODO: add feature routers here, e.g.
-  // todo: router({
-  //   list: protectedProcedure.query(({ ctx }) =>
-  //     db.getUserTodos(ctx.user.id)
-  //   ),
-  // }),
+  // OCR endpoint for business card extraction
+  ocr: router({
+    extractCard: publicProcedure
+      .input(
+        z.object({
+          imageUrl: z.string().url("Invalid image URL"),
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          const data = await extractBusinessCardData(input.imageUrl);
+          return {
+            success: true,
+            data,
+          };
+        } catch (error) {
+          console.error("OCR extraction error:", error);
+          return {
+            success: false,
+            error: error instanceof Error ? error.message : "Unknown error",
+            data: null,
+          };
+        }
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

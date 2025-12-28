@@ -19,6 +19,8 @@ import { storageService } from "@/lib/storage";
 import { BusinessCard } from "@/types/business-card";
 import * as Haptics from "expo-haptics";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
+import { trpc } from "@/lib/trpc";
+import * as FileSystem from "expo-file-system/legacy";
 
 export default function ScanScreen() {
   const colors = useColors();
@@ -26,6 +28,8 @@ export default function ScanScreen() {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [extracting, setExtracting] = useState(false);
   const [saving, setSaving] = useState(false);
+  
+  const ocrMutation = trpc.ocr.extractCard.useMutation();
   
   const [formData, setFormData] = useState({
     companyName: "",
@@ -110,29 +114,57 @@ export default function ScanScreen() {
   const extractDataFromImage = async (uri: string) => {
     setExtracting(true);
     try {
-      // Simulate OCR extraction with AI
-      // In a real app, you would call the server's built-in AI/LLM here
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Convert image to base64
+      let base64Image: string;
       
-      // Mock extracted data
-      setFormData({
-        companyName: "Tech Solutions Inc.",
-        fullName: "John Smith",
-        firstName: "John",
-        lastName: "Smith",
-        jobTitle: "Senior Developer",
-        department: "Engineering",
-        mobileNumber: "+1234567890",
-        phoneNumber: "+1234567890",
-        email: "john.smith@techsolutions.com",
-      });
+      if (Platform.OS === "web") {
+        // For web, use fetch to get base64
+        const response = await fetch(uri);
+        const blob = await response.blob();
+        base64Image = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(blob);
+        });
+      } else {
+        // For native, use FileSystem
+        base64Image = await FileSystem.readAsStringAsync(uri, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        base64Image = `data:image/jpeg;base64,${base64Image}`;
+      }
 
-      if (Platform.OS !== "web") {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      // Upload to S3 and get public URL
+      const uploadResponse = await fetch("/api/upload-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ base64Image }),
+      });
+      
+      if (!uploadResponse.ok) {
+        throw new Error("Failed to upload image");
+      }
+      
+      const { imageUrl } = await uploadResponse.json();
+
+      // Call OCR API
+      const result = await ocrMutation.mutateAsync({ imageUrl });
+
+      if (result.success && result.data) {
+        setFormData(result.data);
+        
+        if (Platform.OS !== "web") {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        }
+      } else {
+        throw new Error(result.error || "Failed to extract data");
       }
     } catch (error) {
       console.error("Error extracting data:", error);
-      Alert.alert("Error", "Failed to extract data. Please enter manually.");
+      Alert.alert(
+        "Error",
+        "Failed to extract data automatically. Please enter information manually."
+      );
     } finally {
       setExtracting(false);
     }

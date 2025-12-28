@@ -36,6 +36,20 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="table"
+        options={{
+          title: "Table",
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="list.bullet" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="stats"
+        options={{
+          title: "Stats",
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="square.grid.2x2.fill" color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="settings"
         options={{
           title: "Settings",

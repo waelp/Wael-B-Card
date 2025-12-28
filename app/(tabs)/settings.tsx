@@ -3,20 +3,56 @@ import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
 import { storageService } from "@/lib/storage";
+import { useI18n } from "@/lib/i18n";
 import * as Haptics from "expo-haptics";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 
 export default function SettingsScreen() {
   const colors = useColors();
+  const { language, setLanguage, t } = useI18n();
+
+  const handleLanguageChange = () => {
+    const newLanguage = language === "en" ? "ar" : "en";
+    
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+
+    Alert.alert(
+      t("settings.change_language"),
+      t("settings.change_language_confirm"),
+      [
+        { text: t("button.cancel"), style: "cancel" },
+        {
+          text: t("button.ok"),
+          onPress: async () => {
+            try {
+              await setLanguage(newLanguage);
+              if (Platform.OS !== "web") {
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+              }
+              Alert.alert(
+                t("settings.language_changed"),
+                t("settings.language_changed_desc")
+              );
+            } catch (error) {
+              console.error("Error changing language:", error);
+              Alert.alert(t("button.error"), t("settings.language_change_error"));
+            }
+          },
+        },
+      ]
+    );
+  };
 
   const handleClearData = () => {
     Alert.alert(
-      "Clear All Data",
-      "Are you sure you want to delete all business cards? This action cannot be undone.",
+      t("settings.clear_data"),
+      t("settings.clear_data_confirm"),
       [
-        { text: "Cancel", style: "cancel" },
+        { text: t("button.cancel"), style: "cancel" },
         {
-          text: "Clear All",
+          text: t("settings.clear_all"),
           style: "destructive",
           onPress: async () => {
             try {
@@ -24,9 +60,9 @@ export default function SettingsScreen() {
               if (Platform.OS !== "web") {
                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
               }
-              Alert.alert("Success", "All data has been cleared.");
+              Alert.alert(t("button.success"), t("settings.data_cleared"));
             } catch (error) {
-              Alert.alert("Error", "Failed to clear data.");
+              Alert.alert(t("button.error"), t("settings.clear_data_error"));
             }
           },
         },
@@ -99,45 +135,43 @@ export default function SettingsScreen() {
         {/* Header */}
         <Animated.View entering={FadeIn.duration(400)} className="px-6 pt-4 pb-3">
           <Text className="text-3xl font-bold mb-2" style={{ color: colors.foreground }}>
-            Settings
+            {t("settings.title")}
           </Text>
           <Text className="text-sm" style={{ color: colors.muted }}>
-            Manage your app preferences
+            {t("settings.subtitle")}
           </Text>
         </Animated.View>
 
         {/* Settings List */}
         <Animated.View entering={FadeInDown.delay(100).duration(400)} className="px-6 mt-4">
           <Text className="text-xs font-semibold mb-3" style={{ color: colors.muted }}>
-            GENERAL
+            {t("settings.general")}
           </Text>
 
           <SettingItem
             icon="house.fill"
-            title="Language"
-            subtitle="English (العربية coming soon)"
-            onPress={() => {
-              Alert.alert("Language", "Arabic language support will be added soon.");
-            }}
+            title={t("settings.language")}
+            subtitle={language === "en" ? "English (العربية)" : "العربية (English)"}
+            onPress={handleLanguageChange}
           />
 
           <View className="mt-6 mb-3">
             <Text className="text-xs font-semibold mb-3" style={{ color: colors.muted }}>
-              DATA
+              {t("settings.data")}
             </Text>
           </View>
 
           <SettingItem
             icon="trash.fill"
-            title="Clear All Data"
-            subtitle="Delete all saved business cards"
+            title={t("settings.clear_data")}
+            subtitle={t("settings.clear_data_subtitle")}
             onPress={handleClearData}
             danger
           />
 
           <View className="mt-6 mb-3">
             <Text className="text-xs font-semibold mb-3" style={{ color: colors.muted }}>
-              ABOUT
+              {t("settings.about")}
             </Text>
           </View>
 
@@ -150,10 +184,10 @@ export default function SettingsScreen() {
             }}
           >
             <Text className="text-sm mb-1" style={{ color: colors.foreground }}>
-              Business Card Vault
+              {t("home.title")}
             </Text>
             <Text className="text-xs" style={{ color: colors.muted }}>
-              Version 1.0.0
+              {t("settings.version")}
             </Text>
           </View>
         </Animated.View>

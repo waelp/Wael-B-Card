@@ -182,19 +182,9 @@ const translations: Translations = {
   },
   "settings.subtitle": {
     en: "Manage your app preferences",
+    ar: "إدا  "settings.subtitle": {
+    en: "Manage your app preferences",
     ar: "إدارة تفضيلات التطبيق",
-  },
-  "settings.general": {
-    en: "GENERAL",
-    ar: "عام",
-  },
-  "settings.data": {
-    en: "DATA",
-    ar: "البيانات",
-  },
-  "settings.about": {
-    en: "ABOUT",
-    ar: "حول",
   },
   "settings.language": {
     en: "Language",
@@ -213,39 +203,9 @@ const translations: Translations = {
     ar: "حذف جميع بطاقات العمل المحفوظة",
   },
   "settings.version": {
-    en: "Version 1.0.0",
-    ar: "الإصدار 1.0.0",
+    en: "Version",
+    ar: "الإصدار",
   },
-  "settings.change_language": {
-    en: "Change Language",
-    ar: "تغيير اللغة",
-  },
-  "settings.change_language_confirm": {
-    en: "Do you want to change the app language?",
-    ar: "هل تريد تغيير لغة التطبيق؟",
-  },
-  "settings.language_changed": {
-    en: "Language Changed",
-    ar: "تم تغيير اللغة",
-  },
-  "settings.language_changed_desc": {
-    en: "The language has been changed successfully.",
-    ar: "تم تغيير اللغة بنجاح.",
-  },
-  "settings.language_change_error": {
-    en: "Failed to change language. Please try again.",
-    ar: "فشل تغيير اللغة. يرجى المحاولة مرة أخرى.",
-  },
-  "settings.clear_all": {
-    en: "Clear All",
-    ar: "مسح الكل",
-  },
-  "settings.clear_data_error": {
-    en: "Failed to clear data.",
-    ar: "فشل مسح البيانات.",
-  },
-
-  // Alerts
   "alert.permission_required": {
     en: "Permission Required",
     ar: "إذن مطلوب",
@@ -307,38 +267,76 @@ const translations: Translations = {
     ar: "البطاقة غير موجودة",
   },
 
-  // Stats Screen
-  "stats.title": {
-    en: "Statistics",
-    ar: "إحصائيات",
+  // Table Screen
+  "table.title": {
+    en: "All Cards",
+    ar: "جميع البطاقات",
   },
-  "stats.subtitle": {
-    en: "Overview of your business cards",
-    ar: "نظرة عامة على بطاقات العمل",
+  "table.cards_total": {
+    en: "cards total",
+    ar: "بطاقة إجمالي",
   },
-  "stats.total_cards": {
-    en: "Total Cards",
-    ar: "إجمالي البطاقات",
+  "table.sort_name": {
+    en: "Name",
+    ar: "الاسم",
   },
-  "stats.companies": {
-    en: "Companies",
-    ar: "الشركات",
+  "table.sort_company": {
+    en: "Company",
+    ar: "الشركة",
   },
-  "stats.vip_contacts": {
-    en: "VIP Contacts",
-    ar: "جهات VIP",
+  "table.sort_date": {
+    en: "Date",
+    ar: "التاريخ",
   },
-  "stats.recent_30_days": {
-    en: "Recent (30 days)",
-    ar: "حديثة (30 يوم)",
+
+  // Settings Screen
+  "settings.title": {
+    en: "Settings",
+    ar: "الإعدادات",
   },
-  "stats.top_companies": {
-    en: "Top Companies",
-    ar: "أعلى الشركات",
+  "settings.subtitle": {
+    en: "Manage your app preferences",
+    ar: "إدارة تفضيلات التطبيق",
   },
-  "stats.top_departments": {
-    en: "Top Departments",
-    ar: "أعلى الأقسام",
+  "settings.general": {
+    en: "GENERAL",
+    ar: "عام",
+  },
+  "settings.change_language": {
+    en: "Change Language",
+    ar: "تغيير اللغة",
+  },
+  "settings.change_language_confirm": {
+    en: "Do you want to change the app language?",
+    ar: "هل تريد تغيير لغة التطبيق؟",
+  },
+  "settings.language_changed": {
+    en: "Language Changed",
+    ar: "تم تغيير اللغة",
+  },
+  "settings.language_changed_desc": {
+    en: "The language has been changed successfully.",
+    ar: "تم تغيير اللغة بنجاح.",
+  },
+  "settings.language_change_error": {
+    en: "Failed to change language. Please try again.",
+    ar: "فشل تغيير اللغة. يرجى المحاولة مرة أخرى.",
+  },
+  "settings.data": {
+    en: "DATA",
+    ar: "البيانات",
+  },
+  "settings.clear_all": {
+    en: "Clear All",
+    ar: "مسح الكل",
+  },
+  "settings.clear_data_error": {
+    en: "Failed to clear data.",
+    ar: "فشل مسح البيانات.",
+  },
+  "settings.about": {
+    en: "ABOUT",
+    ar: "حول",
   },
 
   // Buttons
@@ -350,10 +348,6 @@ const translations: Translations = {
     en: "Cancel",
     ar: "إلغاء",
   },
-  "button.delete": {
-    en: "Delete",
-    ar: "حذف",
-  },
   "button.success": {
     en: "Success",
     ar: "نجاح",
@@ -361,6 +355,10 @@ const translations: Translations = {
   "button.error": {
     en: "Error",
     ar: "خطأ",
+  },
+  "button.delete": {
+    en: "Delete",
+    ar: "حذف",
   },
   "button.clear_all": {
     en: "Clear All",
