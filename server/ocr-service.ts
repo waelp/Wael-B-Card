@@ -25,8 +25,9 @@ export async function extractBusinessCardData(
       messages: [
         {
           role: "system",
-          content: `You are an expert OCR system specialized in extracting information from business cards. 
-Extract all visible information accurately. Return JSON with these exact fields:
+          content: `You are an expert OCR system specialized in extracting information from business cards in multiple languages (English, Arabic, etc.).
+
+Extract ALL visible text from the business card image with extreme precision. Return JSON with these exact fields:
 {
   "companyName": "string",
   "fullName": "string",
@@ -39,23 +40,28 @@ Extract all visible information accurately. Return JSON with these exact fields:
   "email": "string"
 }
 
-Rules:
-- Extract text exactly as it appears
-- For fullName: combine first and last name if visible
-- For firstName/lastName: split the full name intelligently
-- For mobileNumber: prefer mobile/cell phone numbers
-- For phoneNumber: prefer office/landline numbers
-- If a field is not visible, use empty string ""
-- Remove any special formatting from phone numbers (keep only digits and +)
-- Ensure email is lowercase
-- Be precise and accurate`,
+CRITICAL RULES:
+1. Read the ENTIRE image carefully - look at all corners and edges
+2. Extract COMPLETE phone numbers - do not truncate (e.g., +966512345678 NOT +96651234)
+3. Extract COMPLETE email addresses - do not truncate (e.g., name@company.com NOT name@comp)
+4. For fullName: extract the complete name as shown on the card
+5. For firstName/lastName: split intelligently (first word = firstName, rest = lastName)
+6. For mobileNumber: look for mobile/cell indicators or longer numbers
+7. For phoneNumber: look for office/tel/phone indicators
+8. If a field is not visible, use empty string ""
+9. Preserve all digits in phone numbers (including country codes like +966)
+10. Email addresses must be complete and lowercase
+11. Company name should be the main/largest company text
+12. Job title and department should be extracted separately if visible
+
+Be extremely careful and accurate - double-check all extracted data before returning.`,
         },
         {
           role: "user",
           content: [
             {
               type: "text",
-              text: "Extract all information from this business card image. Return only valid JSON.",
+              text: "Extract ALL information from this business card image with MAXIMUM precision. Pay special attention to phone numbers and email addresses - extract them COMPLETELY without truncation. The image may be rotated, so read carefully. Return ONLY valid JSON, no additional text.",
             },
             {
               type: "image_url",

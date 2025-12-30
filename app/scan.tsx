@@ -21,6 +21,7 @@ import * as Haptics from "expo-haptics";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { trpc } from "@/lib/trpc";
 import * as FileSystem from "expo-file-system/legacy";
+import { getApiBaseUrl } from "@/constants/oauth";
 
 export default function ScanScreen() {
   const colors = useColors();
@@ -135,7 +136,8 @@ export default function ScanScreen() {
       }
 
       // Upload to S3 and get public URL
-      const uploadResponse = await fetch("/api/upload-image", {
+      const apiBaseUrl = getApiBaseUrl();
+      const uploadResponse = await fetch(`${apiBaseUrl}/api/upload-image`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ base64Image }),

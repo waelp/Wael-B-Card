@@ -29,8 +29,23 @@ export async function handleImageUpload(req: Request, res: Response) {
     fs.writeFileSync(tempFilePath, base64Data, "base64");
 
     // Upload to S3 using manus-upload-file
-    const { stdout } = await execAsync(`manus-upload-file ${tempFilePath}`);
-    const imageUrl = stdout.trim();
+    console.log(`[upload] Uploading file: ${tempFilePath}`);
+    const { stdout, stderr } = await execAsync(`manus-upload-file ${tempFilePath}`);
+    console.log(`[upload] stdout:`, stdout);
+    if (stderr) console.log(`[upload] stderr:`, stderr);
+    
+    // Extract URL from output (look for "CDN URL: " prefix or line starting with http)
+    const lines = stdout.trim().split('\n');
+    let imageUrl = '';
+    
+    // Try to find "CDN URL: " line
+    const cdnLine = lines.find(line => line.includes('CDN URL:'));
+    if (cdnLine) {
+      imageUrl = cdnLine.split('CDN URL:')[1].trim();
+    } else {
+      // Fallback: find line starting with http
+      imageUrl = lines.find(line => line.trim().startsWith('http')) || lines[lines.length - 1];
+    }
 
     // Clean up temp file
     try {
