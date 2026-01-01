@@ -4,6 +4,8 @@ import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
 import { storageService } from "@/lib/storage";
 import { useI18n } from "@/lib/i18n";
+import { exportService } from "@/lib/export-service";
+import { useState } from "react";
 import * as Haptics from "expo-haptics";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 
@@ -43,6 +45,56 @@ export default function SettingsScreen() {
         },
       ]
     );
+  };
+
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExportCSV = async () => {
+    try {
+      setIsExporting(true);
+      const cards = await storageService.getAllCards();
+      
+      if (cards.length === 0) {
+        Alert.alert(t("button.error"), t("settings.no_cards_to_export"));
+        return;
+      }
+
+      await exportService.exportToCSV(cards);
+      
+      if (Platform.OS !== "web") {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+      Alert.alert(t("button.success"), t("settings.export_success"));
+    } catch (error) {
+      console.error("Error exporting to CSV:", error);
+      Alert.alert(t("button.error"), t("settings.export_error"));
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleExportExcel = async () => {
+    try {
+      setIsExporting(true);
+      const cards = await storageService.getAllCards();
+      
+      if (cards.length === 0) {
+        Alert.alert(t("button.error"), t("settings.no_cards_to_export"));
+        return;
+      }
+
+      await exportService.exportToExcel(cards);
+      
+      if (Platform.OS !== "web") {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+      Alert.alert(t("button.success"), t("settings.export_success"));
+    } catch (error) {
+      console.error("Error exporting to Excel:", error);
+      Alert.alert(t("button.error"), t("settings.export_error"));
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const handleClearData = () => {
@@ -153,6 +205,26 @@ export default function SettingsScreen() {
             title={t("settings.language")}
             subtitle={language === "en" ? "English (العربية)" : "العربية (English)"}
             onPress={handleLanguageChange}
+          />
+
+          <View className="mt-6 mb-3">
+            <Text className="text-xs font-semibold mb-3" style={{ color: colors.muted }}>
+              {t("settings.export")}
+            </Text>
+          </View>
+
+          <SettingItem
+            icon="paperplane.fill"
+            title={t("settings.export_csv")}
+            subtitle={t("settings.export_csv_subtitle")}
+            onPress={handleExportCSV}
+          />
+
+          <SettingItem
+            icon="paperplane.fill"
+            title={t("settings.export_excel")}
+            subtitle={t("settings.export_excel_subtitle")}
+            onPress={handleExportExcel}
           />
 
           <View className="mt-6 mb-3">

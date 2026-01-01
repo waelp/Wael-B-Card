@@ -244,6 +244,38 @@ const translations: Translations = {
     en: "Failed to clear data.",
     ar: "فشل مسح البيانات.",
   },
+  "settings.export": {
+    en: "EXPORT",
+    ar: "التصدير",
+  },
+  "settings.export_csv": {
+    en: "Export to CSV",
+    ar: "تصدير إلى CSV",
+  },
+  "settings.export_csv_subtitle": {
+    en: "Export all cards to CSV file",
+    ar: "تصدير جميع البطاقات إلى ملف CSV",
+  },
+  "settings.export_excel": {
+    en: "Export to Excel",
+    ar: "تصدير إلى Excel",
+  },
+  "settings.export_excel_subtitle": {
+    en: "Export all cards to Excel file",
+    ar: "تصدير جميع البطاقات إلى ملف Excel",
+  },
+  "settings.export_success": {
+    en: "Exported successfully",
+    ar: "تم التصدير بنجاح",
+  },
+  "settings.export_error": {
+    en: "Failed to export",
+    ar: "فشل التصدير",
+  },
+  "settings.no_cards_to_export": {
+    en: "No cards to export",
+    ar: "لا توجد بطاقات للتصدير",
+  },
 
   // Alerts
   "alert.permission_required": {
