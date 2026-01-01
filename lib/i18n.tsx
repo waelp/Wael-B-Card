@@ -277,6 +277,68 @@ const translations: Translations = {
     ar: "لا توجد بطاقات للتصدير",
   },
 
+  // Filter
+  "filter.title": {
+    en: "Filter Cards",
+    ar: "فلترة البطاقات",
+  },
+  "filter.company": {
+    en: "Company",
+    ar: "الشركة",
+  },
+  "filter.department": {
+    en: "Department",
+    ar: "القسم",
+  },
+  "filter.tags": {
+    en: "Tags",
+    ar: "الوسوم",
+  },
+  "filter.date_range": {
+    en: "Date Range",
+    ar: "نطاق التاريخ",
+  },
+  "filter.all": {
+    en: "All",
+    ar: "الكل",
+  },
+  "filter.date_all": {
+    en: "All Time",
+    ar: "كل الوقت",
+  },
+  "filter.date_today": {
+    en: "Today",
+    ar: "اليوم",
+  },
+  "filter.date_week": {
+    en: "This Week",
+    ar: "هذا الأسبوع",
+  },
+  "filter.date_month": {
+    en: "This Month",
+    ar: "هذا الشهر",
+  },
+  "filter.date_year": {
+    en: "This Year",
+    ar: "هذه السنة",
+  },
+  "filter.date_custom": {
+    en: "Custom",
+    ar: "مخصص",
+  },
+  "filter.clear": {
+    en: "Clear",
+    ar: "مسح",
+  },
+  "filter.apply": {
+    en: "Apply",
+    ar: "تطبيق",
+  },
+  "filter.active": {
+    en: "filters active",
+    ar: "فلتر نشط",
+  },
+
   // Alerts
   "alert.permission_required": {
     en: "Permission Required",
