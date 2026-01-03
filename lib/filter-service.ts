@@ -108,9 +108,9 @@ export const filterService = {
   /**
    * Get unique tags from cards
    */
-  getUniqueTags(cards: BusinessCard[]): string[] {
+  getUniqueTags(cards: BusinessCard[]): CardTag[] {
     const allTags = cards.flatMap((card) => card.tags || []);
-    return Array.from(new Set(allTags)).sort();
+    return Array.from(new Set(allTags)).sort() as CardTag[];
   },
 
   /**

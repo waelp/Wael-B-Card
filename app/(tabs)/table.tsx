@@ -13,6 +13,9 @@ import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
 import { storageService } from "@/lib/storage";
 import { BusinessCard } from "@/types/business-card";
+import { FilterModal } from "@/components/filter-modal";
+import { filterService } from "@/lib/filter-service";
+import type { FilterState } from "@/types/filter";
 import * as Haptics from "expo-haptics";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { useRouter } from "expo-router";
@@ -27,6 +30,8 @@ export default function TableScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"name" | "company" | "date">("name");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [filters, setFilters] = useState<FilterState>(filterService.clearFilters());
 
   useEffect(() => {
     loadCards();
@@ -34,7 +39,7 @@ export default function TableScreen() {
 
   useEffect(() => {
     filterAndSortCards();
-  }, [cards, searchQuery, sortBy, sortOrder]);
+  }, [cards, searchQuery, sortBy, sortOrder, filters]);
 
   const loadCards = async () => {
     const allCards = await storageService.getAllCards();
@@ -43,6 +48,11 @@ export default function TableScreen() {
 
   const filterAndSortCards = () => {
     let filtered = cards;
+
+    // Apply filters first
+    if (filterService.hasActiveFilters(filters)) {
+      filtered = filterService.applyFilters(filtered, filters);
+    }
 
     // Apply search filter
     if (searchQuery.trim()) {
@@ -241,7 +251,7 @@ export default function TableScreen() {
         </Animated.View>
 
         {/* Search Bar */}
-        <Animated.View entering={FadeInDown.delay(100).duration(400)} className="px-6 mb-4">
+        <Animated.View entering={FadeInDown.delay(100).duration(400)} className="px-6 mb-3">
           <View
             className="flex-row items-center px-4 py-3 rounded-xl"
             style={{
@@ -271,6 +281,63 @@ export default function TableScreen() {
             )}
           </View>
         </Animated.View>
+
+        {/* Filter Button */}
+        <Animated.View entering={FadeInDown.delay(150).duration(400)} className="px-6 mb-4">
+          <Pressable
+            onPress={() => {
+              if (Platform.OS !== "web") {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              }
+              setShowFilterModal(true);
+            }}
+            style={({ pressed }) => ({
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              paddingVertical: 10,
+              paddingHorizontal: 16,
+              borderRadius: 12,
+              backgroundColor: filterService.hasActiveFilters(filters)
+                ? colors.primary
+                : colors.surface,
+              borderWidth: 1,
+              borderColor: colors.border,
+              opacity: pressed ? 0.8 : 1,
+            })}
+          >
+            <IconSymbol
+              name="line.3.horizontal.decrease.circle"
+              size={20}
+              color={filterService.hasActiveFilters(filters) ? "#FFFFFF" : colors.foreground}
+            />
+            <Text
+              className="ml-2 text-sm font-semibold"
+              style={{
+                color: filterService.hasActiveFilters(filters)
+                  ? "#FFFFFF"
+                  : colors.foreground,
+              }}
+            >
+              {t("filter.title")}
+              {filterService.hasActiveFilters(filters) && " (" + t("filter.active") + ")"}
+            </Text>
+          </Pressable>
+        </Animated.View>
+
+        {/* Filter Modal */}
+        <FilterModal
+          visible={showFilterModal}
+          onClose={() => setShowFilterModal(false)}
+          filters={filters}
+          onApply={(newFilters) => {
+            setFilters(newFilters);
+            filterService.saveActiveFilter(newFilters);
+          }}
+          companies={filterService.getUniqueCompanies(cards)}
+          departments={filterService.getUniqueDepartments(cards)}
+          tags={filterService.getUniqueTags(cards)}
+        />
 
         {/* Sort Buttons */}
         <Animated.View

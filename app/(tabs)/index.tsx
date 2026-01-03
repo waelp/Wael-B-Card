@@ -16,6 +16,9 @@ import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
 import { storageService } from "@/lib/storage";
 import { BusinessCard } from "@/types/business-card";
+import { FilterModal } from "@/components/filter-modal";
+import { filterService } from "@/lib/filter-service";
+import type { FilterState } from "@/types/filter";
 import * as Haptics from "expo-haptics";
 import Animated, {
   FadeIn,
@@ -33,6 +36,8 @@ export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [filters, setFilters] = useState<FilterState>(filterService.clearFilters());
 
   const fabScale = useSharedValue(1);
 
@@ -54,23 +59,28 @@ export default function HomeScreen() {
   }, [loadCards]);
 
   useEffect(() => {
-    if (searchQuery.trim() === "") {
-      setFilteredCards(cards);
-    } else {
-      const filtered = cards.filter((card) => {
-        const query = searchQuery.toLowerCase();
-        return (
-          card.companyName.toLowerCase().includes(query) ||
-          card.fullName.toLowerCase().includes(query) ||
-          card.jobTitle.toLowerCase().includes(query) ||
-          card.department.toLowerCase().includes(query) ||
-          card.mobileNumber.includes(query) ||
-          card.email.toLowerCase().includes(query)
-        );
-      });
-      setFilteredCards(filtered);
+    let result = [...cards];
+
+    // Apply filters first
+    if (filterService.hasActiveFilters(filters)) {
+      result = filterService.applyFilters(result, filters);
     }
-  }, [searchQuery, cards]);
+
+    // Then apply search
+    if (searchQuery.trim() !== "") {
+      const query = searchQuery.toLowerCase();
+      result = result.filter((card) => (
+        card.companyName.toLowerCase().includes(query) ||
+        card.fullName.toLowerCase().includes(query) ||
+        card.jobTitle.toLowerCase().includes(query) ||
+        card.department.toLowerCase().includes(query) ||
+        card.mobileNumber.includes(query) ||
+        card.email.toLowerCase().includes(query)
+      ));
+    }
+
+    setFilteredCards(result);
+  }, [searchQuery, cards, filters]);
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -125,7 +135,7 @@ export default function HomeScreen() {
         </Animated.View>
 
         {/* Search Bar */}
-        <Animated.View entering={FadeInDown.delay(100).duration(400)} className="px-6 mb-4">
+        <Animated.View entering={FadeInDown.delay(100).duration(400)} className="px-6 mb-3">
           <View
             className="flex-row items-center px-4 py-3 rounded-xl"
             style={{
@@ -150,28 +160,79 @@ export default function HomeScreen() {
                   opacity: pressed ? 0.6 : 1,
                 })}
               >
-                <IconSymbol name="xmark" size={18} color={colors.muted} />
+                <IconSymbol name="xmark.circle.fill" size={20} color={colors.muted} />
               </Pressable>
             )}
           </View>
         </Animated.View>
 
+        {/* Filter Button */}
+        <Animated.View entering={FadeInDown.delay(150).duration(400)} className="px-6 mb-4">
+          <Pressable
+            onPress={() => {
+              if (Platform.OS !== "web") {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              }
+              setShowFilterModal(true);
+            }}
+            style={({ pressed }) => ({
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              paddingVertical: 10,
+              paddingHorizontal: 16,
+              borderRadius: 12,
+              backgroundColor: filterService.hasActiveFilters(filters)
+                ? colors.primary
+                : colors.surface,
+              borderWidth: 1,
+              borderColor: colors.border,
+              opacity: pressed ? 0.8 : 1,
+            })}
+          >
+            <IconSymbol
+              name="line.3.horizontal.decrease.circle"
+              size={20}
+              color={filterService.hasActiveFilters(filters) ? "#FFFFFF" : colors.foreground}
+            />
+            <Text
+              className="ml-2 text-sm font-semibold"
+              style={{
+                color: filterService.hasActiveFilters(filters)
+                  ? "#FFFFFF"
+                  : colors.foreground,
+              }}
+            >
+              Filter
+              {filterService.hasActiveFilters(filters) && " (Active)"}
+            </Text>
+          </Pressable>
+        </Animated.View>
+
+        {/* Filter Modal */}
+        <FilterModal
+          visible={showFilterModal}
+          onClose={() => setShowFilterModal(false)}
+          filters={filters}
+          onApply={(newFilters) => {
+            setFilters(newFilters);
+            filterService.saveActiveFilter(newFilters);
+          }}
+          companies={filterService.getUniqueCompanies(cards)}
+          departments={filterService.getUniqueDepartments(cards)}
+          tags={filterService.getUniqueTags(cards)}
+        />
+
         {/* Cards List */}
         {filteredCards.length === 0 ? (
-          <Animated.View
-            entering={FadeIn.duration(400)}
-            className="flex-1 items-center justify-center px-6"
-          >
-            <IconSymbol name="house.fill" size={64} color={colors.muted} />
-            <Text className="text-xl font-semibold mt-4 mb-2" style={{ color: colors.foreground }}>
-              {searchQuery ? "No cards found" : "No cards yet"}
+          <View className="flex-1 items-center justify-center px-6">
+            <Text className="text-lg font-semibold mb-2" style={{ color: colors.foreground }}>
+              No cards yet
             </Text>
-            <Text className="text-center text-sm" style={{ color: colors.muted }}>
-              {searchQuery
-                ? "Try a different search term"
-                : "Tap the + button to scan your first business card"}
+            <Text className="text-sm text-center" style={{ color: colors.muted }}>
+              Tap the + button to scan your first business card
             </Text>
-          </Animated.View>
+          </View>
         ) : (
           <FlatList
             data={filteredCards}
@@ -179,12 +240,11 @@ export default function HomeScreen() {
             renderItem={({ item, index }) => (
               <Animated.View
                 entering={FadeInDown.delay(index * 50).duration(400)}
-                className="px-6"
+                className="px-6 mb-3"
               >
                 <BusinessCardItem card={item} onPress={() => handleCardPress(item)} />
               </Animated.View>
             )}
-            contentContainerStyle={{ paddingBottom: 100 }}
             refreshControl={
               <RefreshControl
                 refreshing={refreshing}
@@ -192,22 +252,18 @@ export default function HomeScreen() {
                 tintColor={colors.primary}
               />
             }
+            contentContainerStyle={{ paddingBottom: 100 }}
           />
         )}
 
-        {/* FAB Button */}
+        {/* FAB */}
         <Animated.View
           style={[
             fabAnimatedStyle,
             {
               position: "absolute",
-              bottom: 24,
               right: 24,
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.3,
-              shadowRadius: 8,
-              elevation: 8,
+              bottom: 24,
             },
           ]}
         >
@@ -216,12 +272,17 @@ export default function HomeScreen() {
             onPressIn={handleFabPressIn}
             onPressOut={handleFabPressOut}
             style={{
-              backgroundColor: colors.primary,
               width: 64,
               height: 64,
               borderRadius: 32,
+              backgroundColor: colors.primary,
               alignItems: "center",
               justifyContent: "center",
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.3,
+              shadowRadius: 8,
+              elevation: 8,
             }}
           >
             <IconSymbol name="plus" size={28} color="#FFFFFF" />
