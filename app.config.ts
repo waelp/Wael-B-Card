@@ -12,11 +12,11 @@ const schemeFromBundleId = `manus${timestamp}`;
 
 const env = {
   // App branding - update these values directly (do not use env vars)
-  appName: "Business Card Vault",
+  appName: "Wael Allam Cards",
   appSlug: "business-card-vault",
   // S3 URL of the app logo - set this to the URL returned by generate_image when creating custom logo
   // Leave empty to use the default icon from assets/images/icon.png
-  logoUrl: "https://s3.manus.computer/manus-public-assets/2025/01/04/c0c1c4b0-0c7e-4e8e-9e3e-8e8e8e8e8e8e.png",
+  logoUrl: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663178700715/lYgFrSwdRUkwiPLb.png",
   scheme: schemeFromBundleId,
   iosBundleId: bundleId,
   androidPackage: bundleId,

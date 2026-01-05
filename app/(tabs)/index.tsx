@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Platform,
   RefreshControl,
+  Image,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { ScreenContainer } from "@/components/screen-container";
@@ -23,9 +24,15 @@ import * as Haptics from "expo-haptics";
 import Animated, {
   FadeIn,
   FadeInDown,
+  FadeInUp,
+  SlideInRight,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
+  withTiming,
+  withRepeat,
+  withSequence,
+  Easing,
 } from "react-native-reanimated";
 
 export default function HomeScreen() {
@@ -40,6 +47,15 @@ export default function HomeScreen() {
   const [filters, setFilters] = useState<FilterState>(filterService.clearFilters());
 
   const fabScale = useSharedValue(1);
+  const fabRotation = useSharedValue(0);
+  const headerOpacity = useSharedValue(0);
+  const logoScale = useSharedValue(0.8);
+
+  // Animate header on mount
+  useEffect(() => {
+    headerOpacity.value = withTiming(1, { duration: 600 });
+    logoScale.value = withSpring(1, { damping: 12 });
+  }, []);
 
   const loadCards = useCallback(async () => {
     try {
@@ -91,6 +107,12 @@ export default function HomeScreen() {
     if (Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
+    // Animate FAB rotation
+    fabRotation.value = withSequence(
+      withTiming(15, { duration: 100 }),
+      withTiming(-15, { duration: 100 }),
+      withTiming(0, { duration: 100 })
+    );
     router.push("/scan");
   };
 
@@ -102,7 +124,18 @@ export default function HomeScreen() {
   };
 
   const fabAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: fabScale.value }],
+    transform: [
+      { scale: fabScale.value },
+      { rotate: `${fabRotation.value}deg` },
+    ],
+  }));
+
+  const headerAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: headerOpacity.value,
+  }));
+
+  const logoAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: logoScale.value }],
   }));
 
   const handleFabPressIn = () => {
@@ -116,57 +149,186 @@ export default function HomeScreen() {
   if (loading) {
     return (
       <ScreenContainer className="items-center justify-center">
-        <ActivityIndicator size="large" color={colors.primary} />
+        <Animated.View
+          entering={FadeIn.duration(400)}
+          style={{
+            alignItems: "center",
+          }}
+        >
+          <View
+            style={{
+              width: 80,
+              height: 80,
+              borderRadius: 20,
+              overflow: "hidden",
+              marginBottom: 16,
+            }}
+          >
+            <Image
+              source={require("@/assets/images/icon.png")}
+              style={{ width: 80, height: 80 }}
+              resizeMode="cover"
+            />
+          </View>
+          <ActivityIndicator size="large" color="#1E3A8A" />
+          <Text style={{ color: colors.muted, marginTop: 12 }}>Loading...</Text>
+        </Animated.View>
       </ScreenContainer>
     );
   }
 
   return (
-    <ScreenContainer>
+    <ScreenContainer containerClassName="bg-background">
       <View className="flex-1">
-        {/* Header */}
-        <Animated.View entering={FadeIn.duration(400)} className="px-6 pt-4 pb-3">
-          <Text className="text-3xl font-bold mb-2" style={{ color: colors.foreground }}>
-            Business Card Vault
-          </Text>
-          <Text className="text-sm" style={{ color: colors.muted }}>
-            {cards.length} {cards.length === 1 ? "card" : "cards"} saved
-          </Text>
-        </Animated.View>
-
-        {/* Search Bar */}
-        <Animated.View entering={FadeInDown.delay(100).duration(400)} className="px-6 mb-3">
+        {/* Modern Gradient Header */}
+        <Animated.View style={headerAnimatedStyle}>
           <View
-            className="flex-row items-center px-4 py-3 rounded-xl"
             style={{
-              backgroundColor: colors.surface,
-              borderWidth: 1,
-              borderColor: colors.border,
+              paddingHorizontal: 24,
+              paddingTop: 16,
+              paddingBottom: 20,
+              backgroundColor: colors.background,
             }}
           >
-            <IconSymbol name="magnifyingglass" size={20} color={colors.muted} />
+            {/* Logo and Title Row */}
+            <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 8 }}>
+              <Animated.View style={logoAnimatedStyle}>
+                <View
+                  style={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: 12,
+                    overflow: "hidden",
+                    marginRight: 12,
+                    shadowColor: "#1E3A8A",
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 8,
+                    elevation: 6,
+                  }}
+                >
+                  <Image
+                    source={require("@/assets/images/icon.png")}
+                    style={{ width: 48, height: 48 }}
+                    resizeMode="cover"
+                  />
+                </View>
+              </Animated.View>
+              <View style={{ flex: 1 }}>
+                <Text
+                  style={{
+                    fontSize: 24,
+                    fontWeight: "800",
+                    color: "#1E3A8A",
+                    letterSpacing: -0.5,
+                  }}
+                >
+                  Wael Allam
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    color: "#0D9488",
+                    fontWeight: "600",
+                    letterSpacing: 0.5,
+                  }}
+                >
+                  Business Cards
+                </Text>
+              </View>
+              <View
+                style={{
+                  backgroundColor: "#1E3A8A15",
+                  paddingHorizontal: 12,
+                  paddingVertical: 6,
+                  borderRadius: 20,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 14,
+                    fontWeight: "700",
+                    color: "#1E3A8A",
+                  }}
+                >
+                  {cards.length}
+                </Text>
+              </View>
+            </View>
+
+            {/* Subtitle */}
+            <Text
+              style={{
+                fontSize: 13,
+                color: colors.muted,
+                marginLeft: 60,
+              }}
+            >
+              {cards.length === 0
+                ? "Start scanning your business cards"
+                : `${cards.length} ${cards.length === 1 ? "card" : "cards"} in your collection`}
+            </Text>
+          </View>
+        </Animated.View>
+
+        {/* Search Bar with Modern Design */}
+        <Animated.View entering={FadeInDown.delay(100).duration(400)} className="px-6 mb-3">
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              paddingHorizontal: 16,
+              paddingVertical: 14,
+              borderRadius: 16,
+              backgroundColor: colors.surface,
+              borderWidth: 1.5,
+              borderColor: searchQuery ? "#1E3A8A" : colors.border,
+              shadowColor: "#1E3A8A",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: searchQuery ? 0.15 : 0.05,
+              shadowRadius: 8,
+              elevation: searchQuery ? 4 : 2,
+            }}
+          >
+            <View
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 10,
+                backgroundColor: "#1E3A8A15",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <IconSymbol name="magnifyingglass" size={18} color="#1E3A8A" />
+            </View>
             <TextInput
-              className="flex-1 ml-3 text-base"
-              placeholder="Search cards..."
+              style={{
+                flex: 1,
+                marginLeft: 12,
+                fontSize: 16,
+                color: colors.foreground,
+              }}
+              placeholder="Search by name, company, position..."
               placeholderTextColor={colors.muted}
               value={searchQuery}
               onChangeText={setSearchQuery}
-              style={{ color: colors.foreground }}
             />
             {searchQuery.length > 0 && (
               <Pressable
                 onPress={() => setSearchQuery("")}
                 style={({ pressed }) => ({
                   opacity: pressed ? 0.6 : 1,
+                  padding: 4,
                 })}
               >
-                <IconSymbol name="xmark.circle.fill" size={20} color={colors.muted} />
+                <IconSymbol name="xmark.circle.fill" size={22} color={colors.muted} />
               </Pressable>
             )}
           </View>
         </Animated.View>
 
-        {/* Filter Button */}
+        {/* Filter Button with Gradient */}
         <Animated.View entering={FadeInDown.delay(150).duration(400)} className="px-6 mb-4">
           <Pressable
             onPress={() => {
@@ -179,32 +341,37 @@ export default function HomeScreen() {
               flexDirection: "row",
               alignItems: "center",
               justifyContent: "center",
-              paddingVertical: 10,
-              paddingHorizontal: 16,
-              borderRadius: 12,
+              paddingVertical: 12,
+              paddingHorizontal: 20,
+              borderRadius: 14,
               backgroundColor: filterService.hasActiveFilters(filters)
-                ? colors.primary
+                ? "#1E3A8A"
                 : colors.surface,
-              borderWidth: 1,
+              borderWidth: filterService.hasActiveFilters(filters) ? 0 : 1.5,
               borderColor: colors.border,
-              opacity: pressed ? 0.8 : 1,
+              opacity: pressed ? 0.85 : 1,
+              shadowColor: filterService.hasActiveFilters(filters) ? "#1E3A8A" : "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: filterService.hasActiveFilters(filters) ? 0.3 : 0.1,
+              shadowRadius: 6,
+              elevation: filterService.hasActiveFilters(filters) ? 4 : 2,
             })}
           >
             <IconSymbol
               name="line.3.horizontal.decrease.circle"
               size={20}
-              color={filterService.hasActiveFilters(filters) ? "#FFFFFF" : colors.foreground}
+              color={filterService.hasActiveFilters(filters) ? "#FFFFFF" : "#1E3A8A"}
             />
             <Text
-              className="ml-2 text-sm font-semibold"
               style={{
-                color: filterService.hasActiveFilters(filters)
-                  ? "#FFFFFF"
-                  : colors.foreground,
+                marginLeft: 8,
+                fontSize: 15,
+                fontWeight: "600",
+                color: filterService.hasActiveFilters(filters) ? "#FFFFFF" : "#1E3A8A",
               }}
             >
               Filter
-              {filterService.hasActiveFilters(filters) && " (Active)"}
+              {filterService.hasActiveFilters(filters) && " • Active"}
             </Text>
           </Pressable>
         </Animated.View>
@@ -223,23 +390,60 @@ export default function HomeScreen() {
           tags={filterService.getUniqueTags(cards)}
         />
 
-        {/* Cards List */}
+        {/* Cards List or Empty State */}
         {filteredCards.length === 0 ? (
-          <View className="flex-1 items-center justify-center px-6">
-            <Text className="text-lg font-semibold mb-2" style={{ color: colors.foreground }}>
+          <Animated.View
+            entering={FadeInUp.delay(200).duration(500)}
+            style={{
+              flex: 1,
+              alignItems: "center",
+              justifyContent: "center",
+              paddingHorizontal: 32,
+            }}
+          >
+            {/* Empty State Illustration */}
+            <View
+              style={{
+                width: 120,
+                height: 120,
+                borderRadius: 30,
+                backgroundColor: "#1E3A8A10",
+                alignItems: "center",
+                justifyContent: "center",
+                marginBottom: 24,
+              }}
+            >
+              <IconSymbol name="creditcard" size={56} color="#1E3A8A" />
+            </View>
+            <Text
+              style={{
+                fontSize: 22,
+                fontWeight: "700",
+                color: colors.foreground,
+                marginBottom: 8,
+                textAlign: "center",
+              }}
+            >
               No cards yet
             </Text>
-            <Text className="text-sm text-center" style={{ color: colors.muted }}>
-              Tap the + button to scan your first business card
+            <Text
+              style={{
+                fontSize: 15,
+                color: colors.muted,
+                textAlign: "center",
+                lineHeight: 22,
+              }}
+            >
+              Tap the + button below to scan your first business card and start building your collection
             </Text>
-          </View>
+          </Animated.View>
         ) : (
           <FlatList
             data={filteredCards}
             keyExtractor={(item) => item.id}
             renderItem={({ item, index }) => (
               <Animated.View
-                entering={FadeInDown.delay(index * 50).duration(400)}
+                entering={SlideInRight.delay(index * 60).duration(400).springify()}
                 className="px-6 mb-3"
               >
                 <BusinessCardItem card={item} onPress={() => handleCardPress(item)} />
@@ -249,21 +453,23 @@ export default function HomeScreen() {
               <RefreshControl
                 refreshing={refreshing}
                 onRefresh={handleRefresh}
-                tintColor={colors.primary}
+                tintColor="#1E3A8A"
+                colors={["#1E3A8A", "#0D9488"]}
               />
             }
-            contentContainerStyle={{ paddingBottom: 100 }}
+            contentContainerStyle={{ paddingBottom: 120 }}
+            showsVerticalScrollIndicator={false}
           />
         )}
 
-        {/* FAB */}
+        {/* Modern FAB with Gradient Effect */}
         <Animated.View
           style={[
             fabAnimatedStyle,
             {
               position: "absolute",
               right: 24,
-              bottom: 24,
+              bottom: 32,
             },
           ]}
         >
@@ -272,20 +478,32 @@ export default function HomeScreen() {
             onPressIn={handleFabPressIn}
             onPressOut={handleFabPressOut}
             style={{
-              width: 64,
-              height: 64,
-              borderRadius: 32,
-              backgroundColor: colors.primary,
+              width: 68,
+              height: 68,
+              borderRadius: 20,
+              backgroundColor: "#1E3A8A",
               alignItems: "center",
               justifyContent: "center",
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.3,
-              shadowRadius: 8,
-              elevation: 8,
+              shadowColor: "#1E3A8A",
+              shadowOffset: { width: 0, height: 6 },
+              shadowOpacity: 0.4,
+              shadowRadius: 12,
+              elevation: 10,
             }}
           >
-            <IconSymbol name="plus" size={28} color="#FFFFFF" />
+            <View
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                borderRadius: 20,
+                backgroundColor: "#0D9488",
+                opacity: 0.3,
+              }}
+            />
+            <IconSymbol name="plus" size={30} color="#FFFFFF" />
           </Pressable>
         </Animated.View>
       </View>
