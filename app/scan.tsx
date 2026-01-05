@@ -22,6 +22,8 @@ import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { trpc } from "@/lib/trpc";
 import * as FileSystem from "expo-file-system/legacy";
 import { getApiBaseUrl } from "@/constants/oauth";
+import { DuplicateDetectionService, DuplicateCheckResult } from "@/lib/duplicate-service";
+import { DuplicateModal } from "@/components/duplicate-modal";
 
 export default function ScanScreen() {
   const colors = useColors();
@@ -43,6 +45,11 @@ export default function ScanScreen() {
     phoneNumber: "",
     email: "",
   });
+
+  // Duplicate detection state
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+  const [duplicateResult, setDuplicateResult] = useState<DuplicateCheckResult | null>(null);
+  const [pendingCard, setPendingCard] = useState<BusinessCard | null>(null);
 
   const handleBack = () => {
     if (Platform.OS !== "web") {
@@ -190,8 +197,22 @@ export default function ScanScreen() {
         ...formData,
         imageUri: imageUri || undefined,
         dateAdded: new Date().toISOString(),
+        createdAt: Date.now(),
       };
 
+      // Check for duplicates
+      const duplicateCheck = await DuplicateDetectionService.checkForDuplicate(newCard);
+      
+      if (duplicateCheck.isDuplicate && duplicateCheck.existingCard) {
+        // Show duplicate modal
+        setDuplicateResult(duplicateCheck);
+        setPendingCard(newCard);
+        setShowDuplicateModal(true);
+        setSaving(false);
+        return;
+      }
+
+      // No duplicate, save directly
       await storageService.saveCard(newCard);
 
       if (Platform.OS !== "web") {
@@ -205,17 +226,65 @@ export default function ScanScreen() {
         },
       ]);
     } catch (error: any) {
-      if (error.message === "DUPLICATE_MOBILE") {
-        Alert.alert(
-          "Duplicate Contact",
-          "A contact with this mobile number already exists."
-        );
-      } else {
-        Alert.alert("Error", "Failed to save card. Please try again.");
-      }
+      Alert.alert("Error", "Failed to save card. Please try again.");
     } finally {
       setSaving(false);
     }
+  };
+
+  // Handle duplicate resolution - Replace old with new
+  const handleReplaceCard = async () => {
+    if (!pendingCard || !duplicateResult?.existingCard) return;
+    
+    setSaving(true);
+    setShowDuplicateModal(false);
+    
+    try {
+      const result = await DuplicateDetectionService.resolveDuplicate(
+        pendingCard,
+        duplicateResult.existingCard,
+        { action: 'replace' }
+      );
+      
+      if (result.success) {
+        if (Platform.OS !== "web") {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        }
+        Alert.alert("Success", result.message, [
+          { text: "OK", onPress: () => router.back() },
+        ]);
+      }
+    } catch (error) {
+      Alert.alert("Error", "Failed to save card. Please try again.");
+    } finally {
+      setSaving(false);
+      setPendingCard(null);
+      setDuplicateResult(null);
+    }
+  };
+
+  // Handle duplicate resolution - Keep old card
+  const handleKeepOld = () => {
+    setShowDuplicateModal(false);
+    setPendingCard(null);
+    setDuplicateResult(null);
+    
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    
+    Alert.alert(
+      "Kept Existing Card",
+      "The new card was not saved. The existing card remains unchanged.",
+      [{ text: "OK" }]
+    );
+  };
+
+  // Handle cancel duplicate modal
+  const handleCancelDuplicate = () => {
+    setShowDuplicateModal(false);
+    setPendingCard(null);
+    setDuplicateResult(null);
   };
 
   return (
@@ -555,6 +624,17 @@ export default function ScanScreen() {
           </Animated.View>
         )}
       </ScrollView>
+
+      {/* Duplicate Detection Modal */}
+      <DuplicateModal
+        visible={showDuplicateModal}
+        existingCard={duplicateResult?.existingCard || null}
+        matchedValue={duplicateResult?.matchedValue || ''}
+        matchedField={duplicateResult?.matchedField || 'mobile'}
+        onReplace={handleReplaceCard}
+        onKeepOld={handleKeepOld}
+        onCancel={handleCancelDuplicate}
+      />
     </ScreenContainer>
   );
 }
