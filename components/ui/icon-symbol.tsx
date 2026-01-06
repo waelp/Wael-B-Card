@@ -34,6 +34,7 @@ const MAPPING: Record<string, MaterialIconName> = {
   "xmark": "close",
   "checkmark": "check",
   "building.2": "business",
+  "building.2.fill": "business",
   "chart.bar.fill": "bar-chart",
   "doc.text.fill": "description",
   "square.and.arrow.up": "share",
@@ -43,8 +44,16 @@ const MAPPING: Record<string, MaterialIconName> = {
   "tag.fill": "label",
   "calendar": "event",
   "funnel.fill": "filter-list",
+  "creditcard": "credit-card",
   "creditcard.fill": "credit-card",
   "line.3.horizontal.decrease.circle": "filter-list",
+  "exclamationmark.triangle.fill": "warning",
+  "arrow.triangle.2.circlepath": "sync",
+  "checkmark.shield.fill": "verified-user",
+  "briefcase.fill": "work",
+  "doc.badge.plus": "note-add",
+  "arrow.down.doc.fill": "file-download",
+  "tablecells": "table-chart",
 };
 
 type IconSymbolName = keyof typeof MAPPING;

@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -25,4 +25,51 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
+/**
+ * BizCapture App Users - Custom authentication
+ */
+export const appUsers = mysqlTable("app_users", {
+  id: int("id").autoincrement().primaryKey(),
+  fullName: varchar("fullName", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull().unique(),
+  phoneNumber: varchar("phoneNumber", { length: 20 }),
+  passwordHash: varchar("passwordHash", { length: 255 }).notNull(),
+  isEmailVerified: boolean("isEmailVerified").default(false).notNull(),
+  verificationCode: varchar("verificationCode", { length: 6 }),
+  verificationCodeExpiry: timestamp("verificationCodeExpiry"),
+  resetToken: varchar("resetToken", { length: 255 }),
+  resetTokenExpiry: timestamp("resetTokenExpiry"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  lastLogin: timestamp("lastLogin"),
+});
+
+export type AppUser = typeof appUsers.$inferSelect;
+export type InsertAppUser = typeof appUsers.$inferInsert;
+
+/**
+ * Business Cards stored in database for sync
+ */
+export const businessCards = mysqlTable("business_cards", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  companyName: varchar("companyName", { length: 255 }),
+  fullName: varchar("fullName", { length: 255 }).notNull(),
+  firstName: varchar("firstName", { length: 100 }),
+  lastName: varchar("lastName", { length: 100 }),
+  jobTitle: varchar("jobTitle", { length: 255 }),
+  department: varchar("department", { length: 255 }),
+  mobileNumber: varchar("mobileNumber", { length: 50 }),
+  phoneNumber: varchar("phoneNumber", { length: 50 }),
+  email: varchar("email", { length: 320 }),
+  website: varchar("website", { length: 500 }),
+  address: text("address"),
+  notes: text("notes"),
+  imageUrl: varchar("imageUrl", { length: 500 }),
+  tags: text("tags"), // JSON array stored as text
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type BusinessCardDB = typeof businessCards.$inferSelect;
+export type InsertBusinessCard = typeof businessCards.$inferInsert;

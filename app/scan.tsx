@@ -326,6 +326,10 @@ export default function ScanScreen() {
               </Text>
 
               <View className="w-full gap-3">
+                {/* Business Card Options */}
+                <Text className="text-xs font-semibold mb-1" style={{ color: colors.muted }}>
+                  BUSINESS CARD
+                </Text>
                 <Pressable
                   onPress={handleTakePhoto}
                   style={({ pressed }) => ({
@@ -366,6 +370,38 @@ export default function ScanScreen() {
                     Choose from Gallery
                   </Text>
                 </Pressable>
+
+                {/* Email Signature Option */}
+                <View style={{ marginTop: 16 }}>
+                  <Text className="text-xs font-semibold mb-2" style={{ color: colors.muted }}>
+                    EMAIL SIGNATURE
+                  </Text>
+                  <Pressable
+                    onPress={handlePickImage}
+                    style={({ pressed }) => ({
+                      backgroundColor: "#06B6D415",
+                      borderWidth: 2,
+                      borderColor: "#06B6D4",
+                      padding: 16,
+                      borderRadius: 12,
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      opacity: pressed ? 0.8 : 1,
+                    })}
+                  >
+                    <IconSymbol name="envelope.fill" size={20} color="#06B6D4" />
+                    <Text
+                      className="ml-3 text-base font-semibold"
+                      style={{ color: "#06B6D4" }}
+                    >
+                      Scan Email Signature
+                    </Text>
+                  </Pressable>
+                  <Text className="text-xs mt-2 text-center" style={{ color: colors.muted }}>
+                    Capture signature from email footer or screenshot
+                  </Text>
+                </View>
               </View>
             </View>
           </Animated.View>

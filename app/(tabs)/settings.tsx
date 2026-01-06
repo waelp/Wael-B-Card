@@ -1,4 +1,5 @@
-import { View, Text, Pressable, ScrollView, Platform, Alert } from "react-native";
+import { View, Text, Pressable, ScrollView, Platform, Alert, Image } from "react-native";
+import { useRouter } from "expo-router";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
@@ -11,6 +12,7 @@ import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 
 export default function SettingsScreen() {
   const colors = useColors();
+  const router = useRouter();
   const { language, setLanguage, t } = useI18n();
 
   const handleLanguageChange = () => {
@@ -209,9 +211,16 @@ export default function SettingsScreen() {
 
           <View className="mt-6 mb-3">
             <Text className="text-xs font-semibold mb-3" style={{ color: colors.muted }}>
-              {t("settings.export")}
+              IMPORT / EXPORT
             </Text>
           </View>
+
+          <SettingItem
+            icon="arrow.down.doc.fill"
+            title="Import from CSV/Excel"
+            subtitle="Add cards from external file"
+            onPress={() => router.push("/import")}
+          />
 
           <SettingItem
             icon="paperplane.fill"
@@ -255,11 +264,26 @@ export default function SettingsScreen() {
               borderColor: colors.border,
             }}
           >
-            <Text className="text-sm mb-1" style={{ color: colors.foreground }}>
-              {t("home.title")}
-            </Text>
+            <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 12 }}>
+              <Image
+                source={require("@/assets/images/icon.png")}
+                style={{ width: 40, height: 40, borderRadius: 10, marginRight: 12 }}
+                resizeMode="cover"
+              />
+              <View>
+                <Text className="text-base font-bold" style={{ color: colors.foreground }}>
+                  BizCapture
+                </Text>
+                <Text className="text-xs" style={{ color: "#06B6D4" }}>
+                  by DSOX
+                </Text>
+              </View>
+            </View>
             <Text className="text-xs" style={{ color: colors.muted }}>
-              {t("settings.version")}
+              Version 1.0.0
+            </Text>
+            <Text className="text-xs mt-2" style={{ color: colors.muted, lineHeight: 18 }}>
+              DSOX - A global company dedicated to simplifying the business world and creating professional dashboards.
             </Text>
           </View>
         </Animated.View>

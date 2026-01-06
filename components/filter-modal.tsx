@@ -82,7 +82,8 @@ export function FilterModal({
           className="rounded-t-3xl"
           style={{
             backgroundColor: colors.background,
-            maxHeight: "90%",
+            height: "75%",
+            minHeight: 500,
           }}
         >
           {/* Header */}
@@ -104,7 +105,11 @@ export function FilterModal({
             </Pressable>
           </View>
 
-          <ScrollView className="flex-1 px-6 py-4">
+          <ScrollView 
+            className="flex-1 px-6 py-4"
+            showsVerticalScrollIndicator={true}
+            contentContainerStyle={{ paddingBottom: 20 }}
+          >
             {/* Company Filter */}
             <View className="mb-6">
               <Text

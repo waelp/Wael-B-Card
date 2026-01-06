@@ -30,9 +30,7 @@ import Animated, {
   useSharedValue,
   withSpring,
   withTiming,
-  withRepeat,
   withSequence,
-  Easing,
 } from "react-native-reanimated";
 
 export default function HomeScreen() {
@@ -170,7 +168,7 @@ export default function HomeScreen() {
               resizeMode="cover"
             />
           </View>
-          <ActivityIndicator size="large" color="#1E3A8A" />
+          <ActivityIndicator size="large" color="#3B82F6" />
           <Text style={{ color: colors.muted, marginTop: 12 }}>Loading...</Text>
         </Animated.View>
       </ScreenContainer>
@@ -180,7 +178,7 @@ export default function HomeScreen() {
   return (
     <ScreenContainer containerClassName="bg-background">
       <View className="flex-1">
-        {/* Modern Gradient Header */}
+        {/* Modern Header with BizCapture branding */}
         <Animated.View style={headerAnimatedStyle}>
           <View
             style={{
@@ -195,12 +193,12 @@ export default function HomeScreen() {
               <Animated.View style={logoAnimatedStyle}>
                 <View
                   style={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: 12,
+                    width: 52,
+                    height: 52,
+                    borderRadius: 14,
                     overflow: "hidden",
-                    marginRight: 12,
-                    shadowColor: "#1E3A8A",
+                    marginRight: 14,
+                    shadowColor: "#3B82F6",
                     shadowOffset: { width: 0, height: 4 },
                     shadowOpacity: 0.3,
                     shadowRadius: 8,
@@ -209,7 +207,7 @@ export default function HomeScreen() {
                 >
                   <Image
                     source={require("@/assets/images/icon.png")}
-                    style={{ width: 48, height: 48 }}
+                    style={{ width: 52, height: 52 }}
                     resizeMode="cover"
                   />
                 </View>
@@ -217,38 +215,41 @@ export default function HomeScreen() {
               <View style={{ flex: 1 }}>
                 <Text
                   style={{
-                    fontSize: 24,
+                    fontSize: 26,
                     fontWeight: "800",
-                    color: "#1E3A8A",
+                    color: "#0F172A",
                     letterSpacing: -0.5,
                   }}
                 >
-                  Wael Allam
+                  BizCapture
                 </Text>
                 <Text
                   style={{
-                    fontSize: 14,
-                    color: "#0D9488",
+                    fontSize: 12,
+                    color: "#06B6D4",
                     fontWeight: "600",
-                    letterSpacing: 0.5,
+                    letterSpacing: 1,
+                    textTransform: "uppercase",
                   }}
                 >
-                  Business Cards
+                  by DSOX
                 </Text>
               </View>
               <View
                 style={{
-                  backgroundColor: "#1E3A8A15",
-                  paddingHorizontal: 12,
-                  paddingVertical: 6,
+                  backgroundColor: "#3B82F615",
+                  paddingHorizontal: 14,
+                  paddingVertical: 8,
                   borderRadius: 20,
+                  borderWidth: 1,
+                  borderColor: "#3B82F630",
                 }}
               >
                 <Text
                   style={{
-                    fontSize: 14,
+                    fontSize: 16,
                     fontWeight: "700",
-                    color: "#1E3A8A",
+                    color: "#3B82F6",
                   }}
                 >
                   {cards.length}
@@ -261,12 +262,12 @@ export default function HomeScreen() {
               style={{
                 fontSize: 13,
                 color: colors.muted,
-                marginLeft: 60,
+                marginLeft: 66,
               }}
             >
               {cards.length === 0
-                ? "Start scanning your business cards"
-                : `${cards.length} ${cards.length === 1 ? "card" : "cards"} in your collection`}
+                ? "Start capturing your business cards"
+                : `${cards.length} ${cards.length === 1 ? "card" : "cards"} in your vault`}
             </Text>
           </View>
         </Animated.View>
@@ -282,8 +283,8 @@ export default function HomeScreen() {
               borderRadius: 16,
               backgroundColor: colors.surface,
               borderWidth: 1.5,
-              borderColor: searchQuery ? "#1E3A8A" : colors.border,
-              shadowColor: "#1E3A8A",
+              borderColor: searchQuery ? "#3B82F6" : colors.border,
+              shadowColor: "#3B82F6",
               shadowOffset: { width: 0, height: 2 },
               shadowOpacity: searchQuery ? 0.15 : 0.05,
               shadowRadius: 8,
@@ -295,12 +296,12 @@ export default function HomeScreen() {
                 width: 36,
                 height: 36,
                 borderRadius: 10,
-                backgroundColor: "#1E3A8A15",
+                backgroundColor: "#3B82F615",
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
-              <IconSymbol name="magnifyingglass" size={18} color="#1E3A8A" />
+              <IconSymbol name="magnifyingglass" size={18} color="#3B82F6" />
             </View>
             <TextInput
               style={{
@@ -328,7 +329,7 @@ export default function HomeScreen() {
           </View>
         </Animated.View>
 
-        {/* Filter Button with Gradient */}
+        {/* Filter Button */}
         <Animated.View entering={FadeInDown.delay(150).duration(400)} className="px-6 mb-4">
           <Pressable
             onPress={() => {
@@ -345,12 +346,12 @@ export default function HomeScreen() {
               paddingHorizontal: 20,
               borderRadius: 14,
               backgroundColor: filterService.hasActiveFilters(filters)
-                ? "#1E3A8A"
+                ? "#3B82F6"
                 : colors.surface,
               borderWidth: filterService.hasActiveFilters(filters) ? 0 : 1.5,
               borderColor: colors.border,
               opacity: pressed ? 0.85 : 1,
-              shadowColor: filterService.hasActiveFilters(filters) ? "#1E3A8A" : "#000",
+              shadowColor: filterService.hasActiveFilters(filters) ? "#3B82F6" : "#000",
               shadowOffset: { width: 0, height: 2 },
               shadowOpacity: filterService.hasActiveFilters(filters) ? 0.3 : 0.1,
               shadowRadius: 6,
@@ -360,14 +361,14 @@ export default function HomeScreen() {
             <IconSymbol
               name="line.3.horizontal.decrease.circle"
               size={20}
-              color={filterService.hasActiveFilters(filters) ? "#FFFFFF" : "#1E3A8A"}
+              color={filterService.hasActiveFilters(filters) ? "#FFFFFF" : "#3B82F6"}
             />
             <Text
               style={{
                 marginLeft: 8,
                 fontSize: 15,
                 fontWeight: "600",
-                color: filterService.hasActiveFilters(filters) ? "#FFFFFF" : "#1E3A8A",
+                color: filterService.hasActiveFilters(filters) ? "#FFFFFF" : "#3B82F6",
               }}
             >
               Filter
@@ -407,13 +408,13 @@ export default function HomeScreen() {
                 width: 120,
                 height: 120,
                 borderRadius: 30,
-                backgroundColor: "#1E3A8A10",
+                backgroundColor: "#3B82F610",
                 alignItems: "center",
                 justifyContent: "center",
                 marginBottom: 24,
               }}
             >
-              <IconSymbol name="creditcard" size={56} color="#1E3A8A" />
+              <IconSymbol name="creditcard" size={56} color="#3B82F6" />
             </View>
             <Text
               style={{
@@ -434,7 +435,7 @@ export default function HomeScreen() {
                 lineHeight: 22,
               }}
             >
-              Tap the + button below to scan your first business card and start building your collection
+              Tap the + button below to capture your first business card and start building your vault
             </Text>
           </Animated.View>
         ) : (
@@ -453,8 +454,8 @@ export default function HomeScreen() {
               <RefreshControl
                 refreshing={refreshing}
                 onRefresh={handleRefresh}
-                tintColor="#1E3A8A"
-                colors={["#1E3A8A", "#0D9488"]}
+                tintColor="#3B82F6"
+                colors={["#3B82F6", "#06B6D4"]}
               />
             }
             contentContainerStyle={{ paddingBottom: 120 }}
@@ -462,7 +463,7 @@ export default function HomeScreen() {
           />
         )}
 
-        {/* Modern FAB with Gradient Effect */}
+        {/* Modern FAB */}
         <Animated.View
           style={[
             fabAnimatedStyle,
@@ -481,10 +482,10 @@ export default function HomeScreen() {
               width: 68,
               height: 68,
               borderRadius: 20,
-              backgroundColor: "#1E3A8A",
+              backgroundColor: "#3B82F6",
               alignItems: "center",
               justifyContent: "center",
-              shadowColor: "#1E3A8A",
+              shadowColor: "#3B82F6",
               shadowOffset: { width: 0, height: 6 },
               shadowOpacity: 0.4,
               shadowRadius: 12,
@@ -499,7 +500,7 @@ export default function HomeScreen() {
                 right: 0,
                 bottom: 0,
                 borderRadius: 20,
-                backgroundColor: "#0D9488",
+                backgroundColor: "#06B6D4",
                 opacity: 0.3,
               }}
             />
