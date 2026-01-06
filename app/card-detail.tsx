@@ -109,14 +109,24 @@ export default function CardDetailScreen() {
           >
             <IconSymbol name="chevron.right" size={24} color={colors.foreground} />
           </Pressable>
-          <Pressable
-            onPress={handleDelete}
-            style={({ pressed }) => ({
-              opacity: pressed ? 0.6 : 1,
-            })}
-          >
-            <IconSymbol name="trash.fill" size={22} color={colors.error} />
-          </Pressable>
+          <View style={{ flexDirection: "row", gap: 16 }}>
+            <Pressable
+              onPress={() => router.push(`/edit-card?cardId=${card.id}` as any)}
+              style={({ pressed }) => ({
+                opacity: pressed ? 0.6 : 1,
+              })}
+            >
+              <IconSymbol name="pencil" size={22} color="#3B82F6" />
+            </Pressable>
+            <Pressable
+              onPress={handleDelete}
+              style={({ pressed }) => ({
+                opacity: pressed ? 0.6 : 1,
+              })}
+            >
+              <IconSymbol name="trash.fill" size={22} color={colors.error} />
+            </Pressable>
+          </View>
         </View>
 
         {/* Card Details */}
